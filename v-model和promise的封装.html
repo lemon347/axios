@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="{CHARSET}">
+		<title></title>
+		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<input type="text" name="" value="" placeholder="在这里输入文字，下面会跟着变化" v-model="message">
+			<p>{{message}}</p>
+		</div>
+		<script>
+			var app = new Vue({
+				el: '#app',
+				data: {
+					message: 'Hello Vue'
+				}
+			})
+		
+		//基于axios的封装
+		function reqData(url, data={}, type='Get'){
+			return new Promise(function(){
+				let req;
+				if(type == 'Get'){
+					let dataStr = '';
+      				Object.keys(data).forEach(key => {
+        				dataStr += key + '=' + data[key] + '&'
+      				})
+      				if (dataStr !== '') {
+        				dataStr = dataStr.substring(0, dataStr.lastIndexOf('&'))
+        				url = url + '?' + dataStr
+      				}
+					req = axios.get(url);
+					/*	
+					 * param = {}
+					 *axios.get(url, {
+					 * 	params: param
+					 * });					 * 
+					 * 
+					 * */
+				}else{
+					req = axios.post(url, data);
+					// axios.post(url, QS.stringify(param));
+					// QS.stringify是对post数据的序列化
+				}
+				req.then(function(response){
+					reslove(response.data);
+				}).catch(function(error){
+					reject(error);
+				});
+			});
+		}	
+		
+		//基于$.ajax的封装
+		function ajax(url, data, type){
+			return new Promise(function(reslove, reject){
+				$.ajax({
+					url: url,
+					type: type,
+					data: data,
+					success: function(data){
+						reslove(data);
+					},
+					error: function(error){
+						reject(error);
+					}
+				})
+			});
+		}
+		
+		
+		
+		var getData = reqData('https://www.imobie.com', {'name':'lucy'});
+		getData.then(function(data){
+			console.log(data);
+		}).catch(function(err){
+			console.log(err.status);
+		});
+		</script>
+	</body>
+</html>
